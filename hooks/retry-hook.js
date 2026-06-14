@@ -57,9 +57,19 @@ function fingerprint(tool, command) {
 function main() {
   // Read hook input from stdin
   let input = '';
-  for (const chunk of process.stdin) {
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (chunk) => {
     input += chunk;
-  }
+  });
+  process.stdin.on('end', () => {
+    runHook(input);
+  });
+}
+
+/**
+ * Process hook input and run retry logic.
+ */
+function runHook(input) {
 
   let data;
   try {
@@ -73,7 +83,7 @@ function main() {
 
   // Only process Bash tool calls
   if (tool !== 'Bash') {
-    process.exit(0);
+    return;
   }
 
   // Check if error is retryable
@@ -83,7 +93,7 @@ function main() {
     const state = loadState();
     delete state[fp];
     saveState(state);
-    process.exit(0);
+    return;
   }
 
   // Error is retryable — check retry state
@@ -95,16 +105,16 @@ function main() {
   const attempt = entry.count + 1;
 
   // Check if we should retry
-  if (!shouldRetry(attempt, MAX_RETRIES)) {
+  if (!shouldRetry(entry.count, MAX_RETRIES)) {
     console.log(`Retry Pattern: max retries (${MAX_RETRIES}) exceeded for: ${command.substring(0, 100)}`);
     delete state[fp];
     saveState(state);
     process.exit(0);
   }
 
-  // Calculate backoff delay
+  // Calculate backoff delay (based on current attempt count, 0-indexed)
   const suggestedBackoff = extractBackoffDelay(stderr || '');
-  const backoff = suggestedBackoff || calculateBackoff(attempt);
+  const backoff = suggestedBackoff || calculateBackoff(entry.count);
 
   // Update state
   state[fp] = {
@@ -120,8 +130,6 @@ function main() {
   const delaySec = (backoff / 1000).toFixed(1);
   console.log(`Retry Pattern: retryable error detected (attempt ${attempt}/${MAX_RETRIES}).`);
   console.log(`Recommendation: wait ${delaySec}s before retrying, then re-run: ${command.substring(0, 80)}...`);
-
-  process.exit(0);
 }
 
 main();
