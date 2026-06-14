@@ -139,15 +139,31 @@ Use absolute paths. Example: `node /home/user/retry-pattern/hooks/retry-hook.js`
 ## Tests
 
 ```bash
-node tests/retry.test.js
+npm test                      # all 27 tests
+npm run test:unit             # 15 unit tests
+npm run test:integration      # 12 integration tests
 ```
 
-15 tests covering:
+**Unit tests (15):**
 - Retryable detection (exit codes, stderr patterns)
 - Non-retryable rejection
 - Backoff extraction from stderr
 - Exponential backoff calculation
 - Retry limit enforcement
+
+**Integration tests (12):** real use-cases:
+- npm install timeout → retry
+- git push ECONNRESET → retry
+- curl temporary failure → retry with suggested backoff
+- Permission denied → no retry
+- Syntax error → no retry
+- Max retries (3) → stop and clear state
+- Success clears retry state
+- Different commands track separately
+- Exponential backoff: 1s → 2s → 4s
+- Non-Bash tools ignored
+- First retry uses 1s backoff
+- Backoff caps at 8s
 
 ## Limitations
 
