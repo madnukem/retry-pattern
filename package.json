@@ -1,0 +1,19 @@
+{
+  "name": "retry-pattern",
+  "version": "0.1.0",
+  "description": "Retry Pattern hook for Claude Code — exponential backoff for retryable errors",
+  "author": "Vassa",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "hooks",
+    "retry",
+    "resilience"
+  ],
+  "scripts": {
+    "test": "node tests/retry.test.js"
+  },
+  "engines": {
+    "node": ">=14.14"
+  }
+}
