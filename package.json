@@ -11,11 +11,19 @@
     "resilience"
   ],
   "scripts": {
-    "test": "node tests/retry.test.js && node tests/integration.test.js",
+    "test": "node tests/retry.test.js && node tests/integration.test.js && node tests/payload.test.js",
     "test:unit": "node tests/retry.test.js",
-    "test:integration": "node tests/integration.test.js"
+    "test:integration": "node tests/integration.test.js",
+    "test:payload": "node tests/payload.test.js"
   },
   "engines": {
     "node": ">=14.14"
-  }
+  },
+  "files": [
+    "hooks",
+    "lib",
+    "SKILL.md",
+    "README.md",
+    "package.json"
+  ]
 }
